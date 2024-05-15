@@ -3,8 +3,9 @@ import os
 import random
 from pathlib import Path
 
-from selenium import webdriver
+from selenium.webdriver import Chrome, ChromeOptions, ChromeService
 from selenium_authenticated_proxy import SeleniumAuthenticatedProxy
+from webdriver_manager.chrome import ChromeDriverManager
 
 from utils.ProxyDataItem import ProxyDataItem
 
@@ -34,7 +35,7 @@ def _get_driver_with_proxy(
         url_to_driver,
         proxy: ProxyDataItem = ProxyDataItem('65.108.12.231', 10130, "eBooyiTfVd",'KyjoJZP7tb')
 ):
-    options = webdriver.ChromeOptions()
+    options = ChromeOptions()
     options.add_argument('--ignore-ssl-errors=yes')
     options.add_argument('--ignore-certificate-errors')
 
@@ -45,9 +46,11 @@ def _get_driver_with_proxy(
 
     proxy_helper.enrich_chrome_options(options)
     if url_to_driver:
-        driver = webdriver.Remote(url_to_driver, options=options)
+        pass
+        # driver = Remote(url_to_driver, options=options)
     else:
-        driver = webdriver.Chrome(options=options)
+        # driver = Chrome(options=options, driver_executable_path=ChromeDriverManager().install())
+        driver = Chrome(options=options, service=ChromeService(ChromeDriverManager().install()))
 
     return driver
 
