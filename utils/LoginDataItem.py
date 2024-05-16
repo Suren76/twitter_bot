@@ -56,6 +56,10 @@ class LoginDataItem:
         return [LoginDataItem.from_raw(data) for data in accounts_data_list]
 
     @staticmethod
+    def get_accounts_list_from_dict_accounts_list(accounts_data_list: list[dict]) -> list['LoginDataItem']:
+        return [LoginDataItem.from_dict(data) for data in accounts_data_list]
+
+    @staticmethod
     def get_accounts_list_on_json_format(accounts_list: list['LoginDataItem']) -> list[dict]:
         return [account_data.to_dict() for account_data in accounts_list]
 

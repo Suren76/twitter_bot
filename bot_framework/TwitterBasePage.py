@@ -16,7 +16,7 @@ class TwitterBasePage:
 
     @property
     def wait(self) -> WebDriverWait:
-        return WebDriverWait(self.driver, 15)
+        return WebDriverWait(self.driver, 60)
 
     def open_twitter(self):
         self._driver.get(self.BASE_URL)

@@ -17,8 +17,8 @@ def load_proxy_data_on_env(path_to_proxys_file: Path):
 
     proxy_data_items_list = ProxyDataItem.get_proxys_list_from_raw_proxys_list(proxys_data_list)
     proxy_data_items_list = ProxyDataItem.get_proxys_list_on_json_format(proxy_data_items_list)
-    # print(proxy_data_items_list)
-    # print(type(json.dumps(proxy_data_items_list)))
+    print(proxy_data_items_list)
+    print(type(json.dumps(proxy_data_items_list)))
 
     os.environ["PROXYS_DATA"] = json.dumps(proxy_data_items_list)
     os.environ["PATH_TO_PROXYS_FILE"] = str(path_to_proxys_file)
@@ -47,7 +47,7 @@ def _get_driver_with_proxy(
     proxy_helper.enrich_chrome_options(options)
     if url_to_driver:
         pass
-        # driver = Remote(url_to_driver, options=options)
+        driver = Remote(url_to_driver, options=options)
     else:
         # driver = Chrome(options=options, driver_executable_path=ChromeDriverManager().install())
         driver = Chrome(options=options, service=ChromeService(ChromeDriverManager().install()))

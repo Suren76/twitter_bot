@@ -28,25 +28,32 @@ def load_accounts_data_on_env(path_to_accounts_file: Path):
         os.mkdir(path_to_cookies_dir)
 
 
-# todo: maybe need to use class for that {login_data }
-def get_random_account_data() -> LoginDataItem:
+def get_account_datas_list() -> list[LoginDataItem]:
     login_data_list = json.loads(os.environ["ACCOUNTS_DATA"])
-
-    login_data = LoginDataItem.from_dict(random.choice(login_data_list))
+    login_data = LoginDataItem.get_accounts_list_from_dict_accounts_list(login_data_list)
     return login_data
 
 
-def get_driver_with_logged_in_account(driver: WebDriver) -> TwitterLoginPage:
+# todo: maybe need to use class for that {login_data }
+def get_random_account_data() -> LoginDataItem:
+    return random.choice(get_account_datas_list())
+
+
+def get_driver_with_logged_in_account(driver: WebDriver, login_data_item: LoginDataItem) -> TwitterLoginPage:
     driver.delete_all_cookies()
     driver.refresh()
-
-    login_account_data = get_random_account_data()
 
     login_page = TwitterLoginPage(driver)
     login_page.open_twitter()
 
     time.sleep(5)
 
-    login_page.login(login_account_data)
+    login_page.login(login_data_item)
 
     return login_page
+
+
+def get_driver_with_logged_in_random_account(driver: WebDriver):
+    login_account_data = get_random_account_data()
+    return get_driver_with_logged_in_account(driver, login_account_data)
+

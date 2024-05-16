@@ -32,6 +32,9 @@ class TwitterSearchPage(TwitterBasePage):
         tweet_elements_list: list[WebElement] = self.driver.find_elements(*self.tweet_block_locator)
         return tweet_elements_list
 
+    def get_exists_posts_len(self):
+        return len(self.get_post_elements_list())
+
     def search_by_url(self, text_to_search: str):
         url = f"{self.search_url}?q={text_to_search}"
         self.driver.get(url)
