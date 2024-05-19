@@ -2,9 +2,13 @@ import json
 import os
 from pathlib import Path
 
+from selenium.common import InvalidCookieDomainException, UnableToSetCookieException, NoSuchCookieException
 from selenium.webdriver.remote.webdriver import WebDriver
 
 from utils.LoginDataItem import LoginDataItem
+
+
+class CookiesException(Exception): pass
 
 
 def load_cookies(driver: WebDriver, account: LoginDataItem, path_to_cookie_dir: Path | str = None):
@@ -25,8 +29,15 @@ def load_cookies(driver: WebDriver, account: LoginDataItem, path_to_cookie_dir: 
     if len(cookies) == 0: return False
 
     # login.driver.get(login.BASE_URL)
-    for item in cookies:
-        driver.add_cookie(item)
+
+    try:
+        for item in cookies:
+            driver.add_cookie(item)
+    except (InvalidCookieDomainException, UnableToSetCookieException, NoSuchCookieException) as e:
+        print(e)
+        os.remove(path_to_cookie_file)
+        raise CookiesException
+        # return False
 
     return True
 
@@ -36,3 +47,4 @@ def save_cookies(driver: WebDriver, account: LoginDataItem, path_to_save_cookies
     path_to_save_cookies_file = Path(path_to_save_cookies) / f"{account.login}.json"
 
     open(path_to_save_cookies_file, "w+").write(json.dumps(driver.get_cookies()))
+

@@ -1,12 +1,17 @@
+import random
 import time
 
+from selenium.common import TimeoutException
 from selenium.webdriver import Keys, ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
 
 from bot_framework.TwitterBasePage import TwitterBasePage
-from bot_framework.TwitterPost import TwitterPost
+from bot_framework.TwitterPost import TwitterPost, FailedLikeException
+
+
+class SuspendedAccountException(Exception): pass
 
 
 class TwitterSearchPage(TwitterBasePage):
@@ -20,6 +25,14 @@ class TwitterSearchPage(TwitterBasePage):
     latest_tab_locator: tuple[By, str] = (By.XPATH, f"//*[contains(@*, '{LATEST_TAB_PARAM}')]")
 
     tweet_block_locator: tuple[By, str] = (By.XPATH, "//div[@data-testid='cellInnerDiv']")
+
+    faced_rate_limits_popup_locator = (By.XPATH, "//*[text()='Sorry, you are rate limited. Please wait a few moments then try again.']")
+
+    reload_button_upper_text_locator = (By.XPATH, "//*[text()='Something went wrong. Try reloading.']")
+    reload_button_locator = (By.XPATH, "//*[contains(text(),'Retry')]")
+
+    suspended_account_message_title_locator = (By.XPATH, "//*[text()='Your account is suspended']")
+
 
     @property
     def search_url(self):
@@ -47,8 +60,9 @@ class TwitterSearchPage(TwitterBasePage):
         self.driver.find_element(*self.tab_bar_search_icon_locator).click()
 
         elem: WebElement = self.wait.until(EC.element_to_be_clickable(self.search_bar_locator))
-        elem.send_keys(text_to_search)
+        self.type_text_by_letters(text_to_search, elem)
         elem.send_keys(Keys.ENTER)
+        self.sleep_by_number(1)
 
         self.wait.until(EC.element_to_be_clickable(self.latest_tab_locator)).click()
 
@@ -84,5 +98,39 @@ class TwitterSearchPage(TwitterBasePage):
             .scroll_by_amount(0, 150)\
             .scroll_by_amount(0, -150)\
             .perform()
-        time.sleep(3)
+        self.sleep_by_number(3)
+
+    def is_app_face_to_rate_limits(self):
+        # Something went wrong. Try reloading.
+        # Sorry, you are rate limited. Please wait a few moments then try again.
+        try:
+            print(self.wait_short.until(EC.visibility_of_element_located(self.reload_button_upper_text_locator)))
+        except TimeoutException as e:
+            return
+
+        trys = 3
+        while trys > 0:
+            print(f"{trys=}")
+            self.wait.until(EC.element_to_be_clickable(self.reload_button_locator)).click()
+
+            try:
+                self.wait_short.until(EC.element_to_be_clickable(self.tweet_block_locator))
+                return
+            except TimeoutException as e:
+                print(e)
+
+            print("start time in range(17, 25)")
+            self.sleep_in_range(17, 25)
+            trys -= 1
+
+        raise FailedLikeException("Like fails")
+
+    def is_account_suspended(self):
+        try:
+            self.wait_short.until(EC.visibility_of_element_located(self.suspended_account_message_title_locator))
+            raise SuspendedAccountException
+        except TimeoutException as e:
+            print(e)
+            return
+
 

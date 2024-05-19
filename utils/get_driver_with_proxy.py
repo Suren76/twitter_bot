@@ -3,11 +3,17 @@ import os
 import random
 from pathlib import Path
 
-from selenium.webdriver import Chrome, ChromeOptions, ChromeService
+# from selenium.webdriver import Chrome, ChromeOptions, ChromeService, Remote
+# from undetected_chromedriver import Chrome, ChromeOptions
 from selenium_authenticated_proxy import SeleniumAuthenticatedProxy
+import seleniumwire.undetected_chromedriver as uc
+from seleniumwire.undetected_chromedriver import Chrome, ChromeOptions
+
+
 from webdriver_manager.chrome import ChromeDriverManager
 
 from utils.ProxyDataItem import ProxyDataItem
+from utils.load_env_params import is_driver_headless
 
 
 def load_proxy_data_on_env(path_to_proxys_file: Path):
@@ -33,28 +39,45 @@ def get_random_proxy_data() -> ProxyDataItem:
 
 def _get_driver_with_proxy(
         url_to_driver,
-        proxy: ProxyDataItem = ProxyDataItem('65.108.12.231', 10130, "eBooyiTfVd",'KyjoJZP7tb')
+        proxy: ProxyDataItem,
+        headless: bool
 ):
     options = ChromeOptions()
     options.add_argument('--ignore-ssl-errors=yes')
     options.add_argument('--ignore-certificate-errors')
 
-    # login:password@ip:port
-    proxy_helper = SeleniumAuthenticatedProxy(
-        proxy_url=f"http://{proxy.login}:{proxy.password}@{proxy.ip}:{proxy.port}"
-    )
+    if headless:
+        options.add_argument("--headless")
 
-    proxy_helper.enrich_chrome_options(options)
+    # login:password@ip:port
+    # proxy_helper = SeleniumAuthenticatedProxy(
+    #     proxy_url=f"http://{proxy.login}:{proxy.password}@{proxy.ip}:{proxy.port}"
+    # )
+
+    # proxy_helper.enrich_chrome_options(options)
+    # options.proxy = f"http://{proxy.login}:{proxy.password}@{proxy.ip}:{proxy.port}"
+    # options.add_argument("--proxy-server="+f"http://{proxy.login}:{proxy.password}@{proxy.ip}:{proxy.port}")
+
+    # options = uc.ChromeOptions()
+    proxy_options = {
+        'proxy': {
+            'https': f"http://{proxy.login}:{proxy.password}@{proxy.ip}:{proxy.port}",
+        }
+    }
+
+    # driver = uc.Chrome(options=options, version_main=114, seleniumwire_options=proxy_options)
+
     if url_to_driver:
         pass
-        driver = Remote(url_to_driver, options=options)
+        # driver = Remote(url_to_driver, options=options)
     else:
         # driver = Chrome(options=options, driver_executable_path=ChromeDriverManager().install())
-        driver = Chrome(options=options, service=ChromeService(ChromeDriverManager().install()))
+        driver = Chrome(options=options, driver_executable_path=ChromeDriverManager("123").install(), seleniumwire_options=proxy_options)
 
     return driver
 
 
-def get_driver_with_proxy(url_to_driver: str=None):
+def get_driver_with_proxy(url_to_driver: str = None):
     proxy = get_random_proxy_data()
-    return _get_driver_with_proxy(url_to_driver, proxy)
+    headless = is_driver_headless()
+    return _get_driver_with_proxy(url_to_driver, proxy, headless)

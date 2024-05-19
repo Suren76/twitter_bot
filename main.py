@@ -7,6 +7,7 @@ from like_posts_by_url import like_posts_by_url_file
 from like_posts_on_latest import like_post_on_latest_by_text
 from utils.get_driver_with_logged_in_account import load_accounts_data_on_env
 from utils.get_driver_with_proxy import get_driver_with_proxy, load_proxy_data_on_env
+from utils.load_env_params import load_env_params
 
 
 def like_tweets(
@@ -22,10 +23,18 @@ def like_tweets(
         text_to_search: str,
         headless: bool
 ):
+    env_params = {
+        "PATH_TO_CHROMEDRIVER": path_to_chromedriver,
+        "HEADLESS": headless
+    }
+
     if proxy_data:
         load_proxy_data_on_env(Path(proxy_data))
     if login_data:
         load_accounts_data_on_env(Path(login_data))
+    if env_params:
+        load_env_params(env_params)
+
 
     # driver = get_driver_with_proxy()
     # login_page = get_driver_with_logged_in_account(driver)

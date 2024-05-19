@@ -18,6 +18,8 @@ poetry-pyinstaller-plugin = "^1.1.8"
 pyinstaller = "^6.6.0"
 webdriver-manager = "^4.0.1"
 nodriver = "^0.29rc2"
+selenium-wire = "^5.1.0"
+blinker = "1.7.0"
 
 
 [build-system]

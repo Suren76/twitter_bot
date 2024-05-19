@@ -39,6 +39,45 @@ def get_random_account_data() -> LoginDataItem:
     return random.choice(get_account_datas_list())
 
 
+def exclude_account_data_from_file(to_exclude_account_data: LoginDataItem):
+    _path_to_accounts_file = Path(os.environ["PATH_TO_ACCOUNTS_FILE"])
+    _path_to_excluded_accounts_file = _path_to_accounts_file.with_stem(_path_to_accounts_file.stem + "_excluded")
+
+    excluded_accounts: list[LoginDataItem] = []
+
+    load_accounts_data_on_env(_path_to_accounts_file)
+
+    file_of_account_datas = open(_path_to_accounts_file, "w+")
+
+    if _path_to_excluded_accounts_file.exists():
+        excluded_accounts_raw = open(_path_to_excluded_accounts_file).read().split("\n")
+        print(f"{excluded_accounts_raw=}")
+        excluded_accounts = LoginDataItem.get_accounts_list_from_raw_accounts_list(list(filter(None, excluded_accounts_raw)))
+        excluded_accounts.append(to_exclude_account_data)
+
+
+    # file_of_account_datas.seek(0)
+    # file_of_excluded_account_datas.seek(0)
+
+    accounts_list = get_account_datas_list()
+    accounts_list_with_excluded_account = list(filter(lambda account: account != to_exclude_account_data, accounts_list))
+    print(f"{to_exclude_account_data=} \n")
+    print(f"{accounts_list=} \n")
+    print(f"{len(accounts_list)=}")
+    print(f"{accounts_list_with_excluded_account} \n")
+    print(f"{len(accounts_list_with_excluded_account)=}")
+
+    raw_accounts_list_excluded = LoginDataItem.get_accounts_list_on_raw_format(accounts_list_with_excluded_account)
+    print(raw_accounts_list_excluded)
+    file_of_account_datas.write(raw_accounts_list_excluded)
+    file_of_account_datas.close()
+
+    raw_excluded_accounts_list = LoginDataItem.get_accounts_list_on_raw_format(excluded_accounts)
+    print(f"{len(excluded_accounts)=}")
+    print(f"{len(raw_excluded_accounts_list)=}")
+    open(_path_to_excluded_accounts_file, "w+").write(raw_excluded_accounts_list)
+
+
 def get_driver_with_logged_in_account(driver: WebDriver, login_data_item: LoginDataItem) -> TwitterLoginPage:
     driver.delete_all_cookies()
     driver.refresh()
@@ -46,7 +85,7 @@ def get_driver_with_logged_in_account(driver: WebDriver, login_data_item: LoginD
     login_page = TwitterLoginPage(driver)
     login_page.open_twitter()
 
-    time.sleep(5)
+    login_page.sleep_by_number(5)
 
     login_page.login(login_data_item)
 

@@ -50,8 +50,11 @@ def main(page: ft.Page):
     )
 
     like_count = ft.TextField(label="likes count", value="2", text_align=ft.TextAlign.CENTER, )
+    search_text = ft.TextField(label="search text", text_align=ft.TextAlign.CENTER, )
     timeout_between_like = ft.TextField(label="timeout between like", value="2", text_align=ft.TextAlign.CENTER, )
     timeout_between_account_change = ft.TextField(label="timeout between account change", value="2", text_align=ft.TextAlign.CENTER, )
+
+    headless_checkbox = ft.Checkbox(label="headless: without browser showing", value=True)
 
     # file_of_link_path = ft.FilePicker("4")
     # accounts_file_path = ft.FilePicker(on_upload="4")
@@ -264,8 +267,20 @@ def main(page: ft.Page):
                 )
             ),
             ft.Container(
+                Row(
+                    [ft.Container(content=headless_checkbox)],
+                    alignment=ft.MainAxisAlignment.SPACE_EVENLY,
+                )
+            ),
+            ft.Container(
                 ft.Row(
                     [ft.Container(content=like_count)],
+                    alignment=ft.MainAxisAlignment.SPACE_EVENLY,
+                )
+            ),
+            ft.Container(
+                ft.Row(
+                    [ft.Container(content=search_text)],
                     alignment=ft.MainAxisAlignment.SPACE_EVENLY,
                 )
             ),
@@ -439,8 +454,8 @@ def main(page: ft.Page):
             timeout=int(timeout_between_like.value),
             timeout_accounts=int(timeout_between_account_change.value),
             path_to_chromedriver=None,
-            text_to_search="ton",
-            headless=False
+            text_to_search=search_text.value,
+            headless=headless_checkbox.value
         )
 
 

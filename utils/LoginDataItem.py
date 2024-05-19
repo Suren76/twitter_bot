@@ -51,6 +51,16 @@ class LoginDataItem:
             token=account.get("token")
         )
 
+    def to_raw(self):
+        return ":".join([
+            self.login,
+            self.password,
+            self.mail,
+            self.mailpassword,
+            self.useragent,
+            self.token
+        ])
+
     @staticmethod
     def get_accounts_list_from_raw_accounts_list(accounts_data_list: list[str]) -> list['LoginDataItem']:
         return [LoginDataItem.from_raw(data) for data in accounts_data_list]
@@ -62,4 +72,36 @@ class LoginDataItem:
     @staticmethod
     def get_accounts_list_on_json_format(accounts_list: list['LoginDataItem']) -> list[dict]:
         return [account_data.to_dict() for account_data in accounts_list]
+
+    @staticmethod
+    def get_accounts_list_on_raw_format(accounts_list: list['LoginDataItem']) -> str:
+        return "\n".join([account_data.to_raw() for account_data in accounts_list])
+
+    def __str__(self):
+        return (
+            "("
+            f"login={self.login}, "
+            f"password={self.password}, "
+            f"mail={self.mail}, "
+            f"mailpassword={self.mailpassword}, "
+            f"useragent={self.useragent}, "
+            f"token={self.token}, "
+            ")"
+        )
+
+    def __eq__(self, other: 'LoginDataItem'):
+        if isinstance(other, LoginDataItem):
+            return (
+                    self.login == other.login and
+                    self.password == other.password and
+                    self.mail == other.mail and
+                    self.mailpassword == other.mailpassword and
+                    self.useragent == other.useragent and
+                    self.token == other.token
+            )
+        return NotImplemented
+
+
+
+
 

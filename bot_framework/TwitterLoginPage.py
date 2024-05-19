@@ -1,3 +1,4 @@
+from selenium.common import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
@@ -26,18 +27,19 @@ class TwitterLoginPage(TwitterBasePage):
             self.click_login_button()
         except Exception as e:
             self._driver.get(self._login_url)
+        self.sleep_by_number(2)
 
     def click_login_button(self):
         self.wait.until(EC.element_to_be_clickable(self.login_button_locator)).click()
 
     def type_username(self, username: str):
         elem: WebElement = self.wait.until(EC.element_to_be_clickable(self.username_locator))
-        elem.send_keys(username)
+        self.type_text_by_letters(username, elem)
         elem.send_keys(Keys.ENTER)
 
     def type_password(self, password: str):
         elem: WebElement = self.wait.until(EC.element_to_be_clickable(self.password_locator))
-        elem.send_keys(password)
+        self.type_text_by_letters(password, elem)
         elem.send_keys(Keys.ENTER)
 
     def _login(self, username: str, password: str):
@@ -48,9 +50,21 @@ class TwitterLoginPage(TwitterBasePage):
         self.type_password(password)
         self.wait.until(EC.element_to_be_clickable(self.profile_link_locator))
 
+    def is_user_logged_in(self):
+        try:
+            self.wait_short.until(EC.element_to_be_clickable(self.profile_link_locator))
+        except TimeoutException as e:
+            return False
+        return True
+
     def login(self, account: LoginDataItem):
-        load_status = load_cookies(self.driver, account)
-        if not load_status:
+        login_status = load_cookies(self.driver, account)
+        self.driver.refresh()
+
+        if login_status:
+            login_status = self.is_user_logged_in()
+
+        if not login_status:
             self._login(account.login, account.password)
-            save_cookies(self.driver, account)
+        save_cookies(self.driver, account)
 
