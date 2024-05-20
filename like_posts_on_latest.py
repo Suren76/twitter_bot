@@ -1,5 +1,6 @@
 import time
 
+import tqdm
 from selenium.webdriver.remote.webdriver import WebDriver
 
 from bot_framework.TwitterPost import FailedLikeException
@@ -51,14 +52,15 @@ def _like_post_on_latest_by_text(account: LoginDataItem, text: str, count: int, 
     search_page.is_app_face_to_rate_limits()
 
     res = like_posts_on_latest_by_count(search_page, count)
-    # search_page.driver.close()
+    search_page.close()
+    print(res)
     return res
 
 
 def like_post_on_latest_by_text(text: str, count: int, timeout: int = 3, timeout_to_accounts_change: int = 15):
     accounts_list = get_account_datas_list()
 
-    for account in accounts_list:
+    for account in tqdm.tqdm(accounts_list):
         try:
             _like_post_on_latest_by_text(account, text, count, timeout)
             TwitterSearchPage.sleep_by_number(timeout_to_accounts_change)

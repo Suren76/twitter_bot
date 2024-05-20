@@ -93,7 +93,9 @@ class TwitterSearchPage(TwitterBasePage):
         return tweets
 
     def load_new_tweets(self):
-        self.driver.execute_script("window.scrollTo(0, 0)")
+        self.driver.execute_script("window.scrollTo(0, 0);")
+        self.sleep_by_number(1)
+
         ActionChains(self.driver)\
             .scroll_by_amount(0, 150)\
             .scroll_by_amount(0, -150)\
@@ -106,6 +108,7 @@ class TwitterSearchPage(TwitterBasePage):
         try:
             print(self.wait_short.until(EC.visibility_of_element_located(self.reload_button_upper_text_locator)))
         except TimeoutException as e:
+            print(f"{type(e)=}")
             return
 
         trys = 3
@@ -117,19 +120,23 @@ class TwitterSearchPage(TwitterBasePage):
                 self.wait_short.until(EC.element_to_be_clickable(self.tweet_block_locator))
                 return
             except TimeoutException as e:
+                print(f"{type(e)=}")
                 print(e)
 
             print("start time in range(17, 25)")
             self.sleep_in_range(17, 25)
             trys -= 1
 
+        self.close()
         raise FailedLikeException("Like fails")
 
     def is_account_suspended(self):
         try:
             self.wait_short.until(EC.visibility_of_element_located(self.suspended_account_message_title_locator))
+            self.close()
             raise SuspendedAccountException
         except TimeoutException as e:
+            print(f"{type(e)=}")
             print(e)
             return
 

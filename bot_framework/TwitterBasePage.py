@@ -45,5 +45,8 @@ class TwitterBasePage:
             element.send_keys(char)
             self.sleep_in_range(0, 1)
 
+    def close(self):
+        self.driver.close()
+
 
 

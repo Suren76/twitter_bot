@@ -20,7 +20,11 @@ def load_accounts_data_on_env(path_to_accounts_file: Path):
     login_data_list = LoginDataItem.get_accounts_list_from_raw_accounts_list(accounts_data_list)
     login_data_list = LoginDataItem.get_accounts_list_on_json_format(login_data_list)
 
-    os.environ["ACCOUNTS_DATA"] = json.dumps(login_data_list)
+    path_to_account_files_json = path_to_accounts_file.with_suffix(".json")
+    open(path_to_account_files_json, "w+").write(json.dumps(login_data_list))
+
+    os.environ["ACCOUNTS_DATA_FILE_JSON"] = str(path_to_account_files_json)
+
     os.environ["PATH_TO_ACCOUNTS_FILE"] = str(path_to_accounts_file)
     os.environ["PATH_TO_COOKIES_FOLDER"] = str(path_to_cookies_dir)
 
@@ -29,7 +33,7 @@ def load_accounts_data_on_env(path_to_accounts_file: Path):
 
 
 def get_account_datas_list() -> list[LoginDataItem]:
-    login_data_list = json.loads(os.environ["ACCOUNTS_DATA"])
+    login_data_list = json.loads(open(os.environ["ACCOUNTS_DATA_FILE_JSON"]).read())
     login_data = LoginDataItem.get_accounts_list_from_dict_accounts_list(login_data_list)
     return login_data
 

@@ -23,6 +23,7 @@ def load_cookies(driver: WebDriver, account: LoginDataItem, path_to_cookie_dir: 
         else:
             return False
     except FileNotFoundError as e:
+        print(f"{type(e)=}")
         print(e)
         return False
 
@@ -34,7 +35,9 @@ def load_cookies(driver: WebDriver, account: LoginDataItem, path_to_cookie_dir: 
         for item in cookies:
             driver.add_cookie(item)
     except (InvalidCookieDomainException, UnableToSetCookieException, NoSuchCookieException) as e:
+        print(f"{type(e)=}")
         print(e)
+
         os.remove(path_to_cookie_file)
         raise CookiesException
         # return False
