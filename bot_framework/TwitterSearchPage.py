@@ -33,6 +33,10 @@ class TwitterSearchPage(TwitterBasePage):
 
     suspended_account_message_title_locator = (By.XPATH, "//*[text()='Your account is suspended']")
 
+    two_factor_authentication_setup_suggestion_popup_title = (By.XPATH, "//*[text()='Boost your account security']")
+
+    two_factor_authentication_setup_suggestion_popup_close_button = (By.XPATH, "//button[contains(@aria-label,'Close')]")
+
 
     @property
     def search_url(self):
@@ -102,6 +106,7 @@ class TwitterSearchPage(TwitterBasePage):
             .perform()
         self.sleep_by_number(3)
 
+    # todo: move to TwitterPost
     def is_app_face_to_rate_limits(self):
         # Something went wrong. Try reloading.
         # Sorry, you are rate limited. Please wait a few moments then try again.
@@ -130,7 +135,22 @@ class TwitterSearchPage(TwitterBasePage):
         self.close()
         raise FailedLikeException("Like fails")
 
+    def if_two_factor_setup_exists_close(self):
+        try:
+            self.wait_short.until(EC.visibility_of_element_located(self.two_factor_authentication_setup_suggestion_popup_title))
+            self.wait_short.until(EC.element_to_be_clickable(self.two_factor_authentication_setup_suggestion_popup_close_button)).click()
+            print("two factor setup popup closed")
+        except TimeoutException as e:
+            print("if_two_factor_setup_exists_close \n")
+            print(f"{type(e)=}")
+            return
+
+    # todo: move to TwitterHomePage
     def is_account_suspended(self):
+        # self.sleep_by_number(60)
+
+        self.if_two_factor_setup_exists_close()
+        # self.driver.refresh()
         try:
             self.wait_short.until(EC.visibility_of_element_located(self.suspended_account_message_title_locator))
             self.close()

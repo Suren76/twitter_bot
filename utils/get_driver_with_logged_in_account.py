@@ -3,6 +3,7 @@ import os
 import random
 import time
 from pathlib import Path
+from typing import Literal
 
 from selenium.webdriver.remote.webdriver import WebDriver
 
@@ -43,9 +44,9 @@ def get_random_account_data() -> LoginDataItem:
     return random.choice(get_account_datas_list())
 
 
-def exclude_account_data_from_file(to_exclude_account_data: LoginDataItem):
+def exclude_account_data_from_file(to_exclude_account_data: LoginDataItem, account_type: Literal["banned", "locked"]):
     _path_to_accounts_file = Path(os.environ["PATH_TO_ACCOUNTS_FILE"])
-    _path_to_excluded_accounts_file = _path_to_accounts_file.with_stem(_path_to_accounts_file.stem + "_excluded")
+    _path_to_excluded_accounts_file = _path_to_accounts_file.with_stem(_path_to_accounts_file.stem + f"_excluded_{account_type}")
 
     excluded_accounts: list[LoginDataItem] = []
 
@@ -53,7 +54,7 @@ def exclude_account_data_from_file(to_exclude_account_data: LoginDataItem):
 
     file_of_account_datas = open(_path_to_accounts_file, "w+")
 
-    if _path_to_excluded_accounts_file.exists():
+    if os.path.exists(_path_to_excluded_accounts_file):
         excluded_accounts_raw = open(_path_to_excluded_accounts_file).read().split("\n")
         print(f"{excluded_accounts_raw=}")
         excluded_accounts = LoginDataItem.get_accounts_list_from_raw_accounts_list(list(filter(None, excluded_accounts_raw)))
@@ -82,9 +83,17 @@ def exclude_account_data_from_file(to_exclude_account_data: LoginDataItem):
     open(_path_to_excluded_accounts_file, "w+").write(raw_excluded_accounts_list)
 
 
+def exclude_account_data_from_file_to_banned_accounts_file(to_exclude_account_data: LoginDataItem):
+    exclude_account_data_from_file(to_exclude_account_data, "banned")
+
+
+def exclude_account_data_from_file_to_locked_accounts_file(to_exclude_account_data: LoginDataItem):
+    exclude_account_data_from_file(to_exclude_account_data, "locked")
+
+
 def get_driver_with_logged_in_account(driver: WebDriver, login_data_item: LoginDataItem) -> TwitterLoginPage:
     driver.delete_all_cookies()
-    driver.refresh()
+    # driver.refresh()
 
     login_page = TwitterLoginPage(driver)
     login_page.open_twitter()
@@ -94,6 +103,12 @@ def get_driver_with_logged_in_account(driver: WebDriver, login_data_item: LoginD
     login_page.login(login_data_item)
 
     return login_page
+
+
+def login_on_not_allowed_actions(driver: WebDriver, account: LoginDataItem):
+    login_page = TwitterLoginPage(driver)
+    if not login_page.is_user_logged_in():
+        login_page.login(account)
 
 
 def get_driver_with_logged_in_random_account(driver: WebDriver):

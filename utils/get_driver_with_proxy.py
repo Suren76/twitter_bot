@@ -45,6 +45,7 @@ def _get_driver_with_proxy(
     options = ChromeOptions()
     options.add_argument('--ignore-ssl-errors=yes')
     options.add_argument('--ignore-certificate-errors')
+    options.add_argument('--no-sandbox')
 
     if headless:
         options.add_argument("--headless")
@@ -73,6 +74,7 @@ def _get_driver_with_proxy(
     else:
         # driver = Chrome(options=options, driver_executable_path=ChromeDriverManager().install())
         driver = Chrome(options=options, driver_executable_path=ChromeDriverManager("123").install(), seleniumwire_options=proxy_options)
+        driver.set_page_load_timeout(60)
 
     return driver
 

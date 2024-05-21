@@ -10,6 +10,9 @@ from utils.cookies import load_cookies, save_cookies
 from .TwitterBasePage import TwitterBasePage
 
 
+class LockedAccountException(Exception): pass
+
+
 class TwitterLoginPage(TwitterBasePage):
     login_button_locator: tuple[By, str] = (By.XPATH, "//*[contains(@*, '/login')]")
 
@@ -59,7 +62,7 @@ class TwitterLoginPage(TwitterBasePage):
 
     def login(self, account: LoginDataItem):
         login_status = load_cookies(self.driver, account)
-        self.driver.refresh()
+        # self.driver.refresh()
 
         if login_status:
             login_status = self.is_user_logged_in()
@@ -67,4 +70,9 @@ class TwitterLoginPage(TwitterBasePage):
         if not login_status:
             self._login(account.login, account.password)
         save_cookies(self.driver, account)
+
+        if "/account/access" in self.driver.current_url:
+            raise LockedAccountException("current account is locked. adding in to locked accounts file \n"f"{account=}")
+
+
 

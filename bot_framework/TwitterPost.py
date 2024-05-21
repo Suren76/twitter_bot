@@ -9,6 +9,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 
 class FailedLikeException(Exception): pass
+class NotAllowedActionsFailedLikeException(Exception): pass
+
 
 
 class TwitterPost:
@@ -22,6 +24,8 @@ class TwitterPost:
     post_link_tag_locator: tuple[By, str] = (By.XPATH, ".//time/..")
 
     banned_account_failed_like_popup_locator = (By.XPATH, "//*[text()='Your account is suspended and is not permitted to perform this action.']")
+
+    not_allowed_actions_account_failed_like_popup_locator = (By.XPATH, "//*[text()='Your account may not be allowed to perform this action. Please refresh the page and try again.']")
 
     def __init__(self, elem: WebElement):
         self._elem = elem
@@ -43,18 +47,30 @@ class TwitterPost:
     @staticmethod
     def sleep_in_range(a: int, b: int):
         random_time = (random.randint(a*1000, b*1000) / 1000)
+        print(f"sleep {random_time}s")
         time.sleep(random_time)
 
     @staticmethod
     def sleep_by_number(i: int):
         TwitterPost.sleep_in_range(i-1, i+1)
 
-    def is_like_fails(self):
+    def is_like_fails_by_banned_account(self):
         try:
             print(self.wait_short.until(EC.visibility_of_element_located(self.banned_account_failed_like_popup_locator)))
         except TimeoutException as e:
             return
         raise FailedLikeException("Like fails")
+
+    def is_like_fails_by_not_allowed_actions(self):
+        try:
+            print(self.wait_short.until(EC.visibility_of_element_located(self.not_allowed_actions_account_failed_like_popup_locator)))
+        except TimeoutException as e:
+            return
+        raise NotAllowedActionsFailedLikeException("Like fails")
+
+    def is_like_fails(self):
+        self.is_like_fails_by_banned_account()
+        self.is_like_fails_by_not_allowed_actions()
 
     def like(self):
         self.wait.until(EC.element_to_be_clickable(self.post_like_locator)).click()

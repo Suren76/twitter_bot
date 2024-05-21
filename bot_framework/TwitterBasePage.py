@@ -32,6 +32,7 @@ class TwitterBasePage:
     @staticmethod
     def sleep_in_range(a: int, b: int):
         random_time = (random.randint(a*1000, b*1000) / 1000)
+        print(f"sleep {random_time}s")
         time.sleep(random_time)
 
     @staticmethod

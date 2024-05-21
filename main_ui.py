@@ -35,12 +35,10 @@ def main(page: ft.Page):
     lv.controls.append(ft.Row([ft.Container(text_ := ft.Text("data"))], alignment=ft.MainAxisAlignment.SPACE_EVENLY, ))
     lv.controls.append(ft.Row([ft.Text("")], ))
 
-
     # page.add(ft.Row([], ))
     # page.add(ft.Row([], ))
 
-
-    process_count = ft.TextField(label="threads count", disabled=True, value="1", text_align=ft.TextAlign.CENTER, )
+    process_count = ft.TextField(label="threads count", value="1", text_align=ft.TextAlign.CENTER, )
     run_mode = ft.Dropdown(
         label="Run Mode", hint_text="Choose mode",
         options=[
@@ -54,7 +52,7 @@ def main(page: ft.Page):
     timeout_between_like = ft.TextField(label="timeout between like", value="2", text_align=ft.TextAlign.CENTER, )
     timeout_between_account_change = ft.TextField(label="timeout between account change", value="2", text_align=ft.TextAlign.CENTER, )
 
-    headless_checkbox = ft.Checkbox(label="headless: without browser showing", value=True)
+    headless_checkbox = ft.Checkbox(label="headless: without browser showing", value=False)
 
     # file_of_link_path = ft.FilePicker("4")
     # accounts_file_path = ft.FilePicker(on_upload="4")

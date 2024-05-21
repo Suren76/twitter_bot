@@ -4,7 +4,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 
 from bot_framework.TwitterLoginPage import TwitterLoginPage
 from like_posts_by_url import like_posts_by_url_file
-from like_posts_on_latest import like_post_on_latest_by_text
+from like_posts_on_latest import like_posts_on_latest_by_text
 from utils.get_driver_with_logged_in_account import load_accounts_data_on_env
 from utils.get_driver_with_proxy import get_driver_with_proxy, load_proxy_data_on_env
 from utils.load_env_params import load_env_params
@@ -43,5 +43,5 @@ def like_tweets(
         like_posts_by_url_file(Path(links_file), likes_count, timeout, timeout_accounts)
 
     if mode == "latest_posts":
-        like_post_on_latest_by_text(text_to_search, likes_count, timeout, timeout_accounts)
+        like_posts_on_latest_by_text(text_to_search, likes_count, timeout, timeout_accounts, threads_count)
 
